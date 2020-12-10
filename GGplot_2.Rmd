@@ -1,0 +1,208 @@
+---
+title: "Note book GGplot_2"
+output:
+  html_document: default
+  pdf_document: default
+encoding: UTF-8
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Utilisation de GGplot_2 
+
+GGplot2 est une extension du tidyverse qui permet de g√©n√©rer des graphiques avec une syntaxe coh√©rente et puissante. Elle n√©cessite l apprentissage d un mini-langage suppl√©mentaire, mais permet la construction de graphiques complexes de maniere √©fficace.
+
+Une des particularit√©s de GGplot2 est  que l extension  part du principe que les donn√©es relatives √† un graphique sont stock√©s dans un tableau de donn√©es (data frame, tibble ou autre). 
+
+Les pr√©requis :
+<br>  Il faut tout d abord avoir  un data frame du type 
+
+```{r}
+library(ggplot2)
+head(mpg)
+```
+
+
+Une fois le tableau initialis√©, il  est temps de jouer avec les donn√©es. La manipulation passe par deux axes cl√©s : 
+<br>- la definition des variables sur leur axe resp√©ctifs <br>- le type de graphique √† utliser. 
+
+Il existe  une multitude de graphiques qui ont chacun une fonction bien pr√©cise.
+
+
+
+
+
+## Le nuage de point 
+Definition: en statistiques, un nuage de points est une repr√©sentation de donn√©es d√©pendant de plusieurs variables. Il permet de mettre en √©vidence le degr√© de corr√©lation entre au moins deux variables li√©es. Les diff√©rentes observations des nuages de points permettent de d√©terminer : Des tendances Des d√©pendances.
+Utilisable avec la fonction : geom_point ( qui permet de modifier : taille, couleur et forme des points). 
+  
+Une fois l intialisation termin√©e, il faut utliser la fonction suivante : 
+
+```{r}
+ggplot(mtcars, aes(x=wt, y=mpg))+ geom_point()
+#(definition du DataFrame, definition des axes : aes (x = , y = )+ geom_point()
+```
+
+Pour la question des points, tout est dans la definition du "geom_point", personalisable √† l'infini 
+
+```{r}
+ggplot(mpg) + 
+  geom_point(aes(x = cyl, y = displ), 
+             color = "darkgreen", size = 3, alpha = 0.3)
+```
+
+
+## Les Histogrammes: 
+
+Definition : Repr√©sentation graphique des fr√©quences ou effectifs relatifs √† un caractere quantitatif continu √† l'aide d'une s√©rie de rectangles dont la base constitue un intervalle de variation des valeurs du caractere et la surface l effectif correspondant.
+Pour cela, il faut utiliser la commande : geom_histogram qui se configure de la mani√®re suivante : 
+
+```{r}
+ggplot(mpg) + geom_histogram(aes(x = cyl))
+```
+
+Definir X permet d'afficher la donn√©e que l'on souhaite representer. 
+
+
+## LES BOITES A MOUSTACHE :
+Definition : Dans les repr√©sentations graphiques de donn√©es statistiques, la boite √† moustaches est un moyen rapide de figurer le profil essentiel d une s√©rie statistique quantitative. Elle a √©t√© invent√©e en 1977 par John Tukey, mais peut faire l objet de certains am√©nagements selon les utilisateurs.
+
+utilisable avec la commande : "geom_boxplot" : 
+```{r}
+ggplot(mpg) + geom_boxplot(aes(x = cty , y = hwy),fill = "wheat", color = "blue")
+```
+
+exemple toujours avec le tableau ci dessus 
+Personnalisable avec les commandes : 
+
+
+ 
+ Toujours avec les boites √† moustaches, la commande "varwidth" permet de varier la longueure des boites en fonctions  des effectifs de la cat√©gorie. Pour l'appliquer, on fait : 
+ 
+```{r}
+ggplot(mpg) + geom_boxplot(aes(x = cyl, y = drv), varwidth = TRUE)
+```
+
+
+
+
+Pour cela, il faut utiliser la commande : geom_histogram qui se configure de la mani√®re suivante 
+
+geom_histogram(aes(x = mpg))
+
+Definir X permet d afficher la donn√©e que l on souhaite representer. 
+
+## Geom_violin : 
+geom_violin est tres semblable √† geom_boxplot, mais utilise des graphes en violon √† la place des boites √† moustache.
+Les graphes en violon peuvent donner une lecture plus fine des diff√©rences de distribution selon les classes.  
+```{r}
+ggplot(mpg) + geom_violin(aes(x = cyl, y = displ))
+```
+
+## Pour aller plus loin : utilisation du package GGplot 2 avec notre fichier sur le COvid19
+
+Mise en place des librairis que l'on va utiliser : 
+```{r}
+
+library(lubridate)
+library(ggplot2)
+library(dplyr)
+```
+
+<br> On demande au programme de lire le fichier CSV qui contient nos donnÈes a plat, pour faciliter notre travail on renomme ce dossier "data_covid"
+<br> Pour cela nous allons donc utiliser la fonction : read.table de tel maniere que : 
+<br>read.table("donneeaplatcovid2.csv" [nom du fichier],header=TRUE [titre des colonnes],sep=';' [permet de determiner quel est le type de separateur ],dec='.'[pour dÈnfinir quel est la decimale]
+  
+
+```{r}
+data_covid<-read.table("donneeaplatcovid2.csv",header=TRUE,sep=';',dec='.')
+#ATTENTION DANS LE CADRE DE CETTE METHODE IL FAUT IMPERATIVEMENT AVOIR TELECHARGER LE FICHIER EN QUESTION. 
+```
+
+Une fois la commande rentrÈe, il est temps de vÈrifier pour savoir si le code a bien ÈtÈ appliquÈ. On effectue alors le code suivant : 
+
+```{r}
+head(data_covid)
+str(data_covid)
+```
+
+On remarque que dans ce fichier, la colonne JOUR et DATE sont ‡ revoir.  
+ 
+<br>On a constater que la colonne "JOUR" avait un nom diffÈrent, pour voir ce nom on effectue la commande suivante :
+
+```{r}
+#voir la colonne 1 qui est dans notre cas la colonne JOUR
+names(data_covid[1]) 
+#Pour renommer la colonne on effectue la commande ci dessous
+colnames(data_covid)[colnames(data_covid) == names(data_covid[1])] <- 'JOUR' 
+
+```
+
+Il est important de voir si la commande a bien fonctionnÈe, pour cela, toujours la meme commande : 
+```{r}
+head(data_covid)
+str(data_covid)
+```
+
+Maintenant, nous allons traiter le deuxieme probleme, ( pour mettre la date intiale sous une autre forme prise en concidÈration par GGplot)
+
+```{r}
+# on a le probleme du format de date, pour cela on execute la commande ci dessous pour changer le format : 
+data_covid$JOUR <- dmy(data_covid$JOUR) #transformation du format de la colonne JOUR en date 
+str(data_covid)
+```
+
+##Application des filtres au fichier CSV
+<br> Une fois le fichier utilisable par les diffÈrents fonctions GGPlot, il est temps d'appliquer diffÈrents filitres afin d'affinner les recheches est l'interprÈation de donnÈes. Dans le fichier CSV, il est indiquÈ par jour et par dÈpartement les valeurs suivantes : 
+<br> Nombre d'hospitalisation
+<br> Nombre de  personnes en rÈanimation
+<br> Nombre de personnes atteintes du Covid19
+<br> Nombre de test effectuÈs
+<br> Nombre de test positif
+
+
+```{r}
+#ici on cherche seulement les donÈes du 95 
+covid_95 <- dplyr::filter(data_covid,DEP==95)
+```
+
+De ce fait, lorsque l'on appellera la fonction "covid_95" le filtre sera automatiquement appliquÈ. (declinable sur tous les dÈpartements)
+
+## Application de GGplot2 sur notre fichier 
+
+Pour les deux commandes suivantes, on cherche ‡ creer deux variables,  p et q qui montrent respÈctivement ; le nombre de personnes hospitalisÈs dans le 95 par jour et, toujours dans le 95 le nombre de personnees admisent en rÈanimation par jour
+
+```{r}
+p <- ggplot(covid_95, aes(x=JOUR, y=HOSP)) + geom_line(colour = 'blue')
+print(p)
+
+q <- ggplot(covid_95, aes(x=JOUR, y=REA)) + geom_line(colour = 'green')
+print(q)
+
+```
+
+
+##Tips et piste de rÈflÈxion. 
+
+
+#ts : permet de transformer les  de chiffre en series temporel
+#mts : permet de transformer de multiple donnÈes en serie temporel 
+#forecast : pour faire des prÈdictions
+
+Le prochain defi sera d'agreger les deux courbe et d'utiliser le package caret pour pouvoir faire des prÈductions quant ‡ l'Èvolution du Covid19
+
+ 
+##Pour plus d'information : 
+https://juba.github.io/tidyverse/08-ggplot2.html#ressources-1
+
+
+ 
+
+
+
+
+
+
+
