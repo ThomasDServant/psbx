@@ -1,0 +1,173 @@
+---
+title: "Dplyr"
+author: "Alexandre"
+date: "04/12/2020"
+output: html_document
+---
+
+Téléchargement et installation de Tidyverse (comprend ggplot2 et dplyr entre autre)
+
+install.packages("tidyverse") #téléchargement librairie Tidyverse
+```{r}
+library(tidyverse) #chargement librairie tidyverse contenant le package dplyr
+
+#Ou alors
+
+library(dplyr) #chargement package dplyr si on veut uniquement le package dplyr
+```
+
+Téléchargement et installation d'une base de donnée à étudier
+
+téléchargement base de données vols New York 2013
+install.packages("nycflights13")
+```{r}
+#chargement de la base et 3 tables: flights, airports et airlines
+library(nycflights13)
+data(flights)
+data(airports)
+data(airlines)
+```
+
+## Fonctions Slice
+```{r}
+#utilisation slice, sélectionner une ligne d'une table
+slice(airports, 345)
+slice(airlines, 10)
+slice(flights, 666)
+
+#sélectionner plusieurs lignes avec slice
+slice(airports, 0:5) #débuter à 0 ou 1 donne même résultat
+slice(flights,666:777)
+
+#dbl = nombre à virgule ?
+
+#slice_head et slice_tail permettent de sélectionner les n premières ou n dernières lignes du tableau
+airports%>%slice_head(n=3)#on sélectionne les 3 première lignes du tableau
+airports%>%slice_head(n=0.2) #on sélectionne les premières lignes constituant 20% du tableau total
+
+#slice_max et slice_min affichent n ou prop lignes du tableau ayant les valeurs les plus ou les moins élevées de cette variable
+airports %>% slice_min(alt, n = 2) #Si on veut les 2 aéroports avec l’altitude la plus basse
+```
+
+## Fonction FILTER
+```{r}
+#filter sélectionne des lignes d’une table selon une condition, similaire à "WHERE" en SQL
+filter(flights, month==1) #mois de janvier = month 1
+filter(airports, alt>8000) #aéroport à plus de 8000 d'altitude, 8000 pieds ?
+filter(airports, faa=="LCY") #on cherche l'aéroport de Londres, introuvable dans la base
+filter(airports, faa=="LAX") #on cherche l'aéroport de Los Angeles, présent dans la base
+```
+
+## Fonction SELECT
+```{r}
+#fonction select fonctionnement similaire à SELECT en SQL, affiche les colonnes indiquées sans filtre
+select(airports, lat, lon, name, tzone)
+select(airports, lat:tzone) #sélection de toutes les colonnes dans cet interval
+
+# en ajoutant - avant la colonne, on exclue celle-ci et affiche les autres
+select(airports, -lat, -lon)
+
+#fonctions starts_with , ends_with, contains ou matches; différence entre contains et matches ?
+select(airports, matches("name"))
+select(flights, starts_with("dep"))
+```
+
+## Fonctions RENAME et ARRANGE
+```{r}
+#rename fonctionne comme select mais permet de renommer les colonnes simultanément
+rename(airports, longitude=lon, latitude=lat, "test plusieurs mots"=alt)
+
+#arrange classe les lignes selon une colone, similaire à ORDER BY en SQL
+arrange(flights, dep_delay) #on classe les lignes selon le retard dans l'ordre croissant
+arrange(flights, month, dep_delay) #on classe les lignes selon le mois puis selon le retard
+arrange(flights, desc(dep_delay)) #on classe selon le retard dans l'ordre décroissant
+
+#on sélectionne le top 3 des retards parmi les vols
+x <- arrange(flights, desc(dep_delay))
+slice(x, 1:3)
+```
+
+## Fonction MUTATE
+```{r}
+#mutate permet de créer de nouvelles colonnes
+fligths <- mutate(flights, duree_heure = air_time/60) #on créé une nouvelle contenant le temps de vol en heure à partir de la valeur air_time en minute
+select(fligths, air_time, duree_heure)
+
+#création de plusieurs colonnes simultanément, même à partir de colonnes nouvellements créées
+flights <- mutate(flights, 
+                  duree_heure = air_time / 60,
+                  distance_km = distance / 0.62137,
+                  vitesse = distance_km / duree_heure)
+select(flights, air_time, duree_heure, distance, distance_km, vitesse)
+```
+
+## Enchainer les actions
+```{r}
+#utilisation d'un objet temporaire pour enchainer des actions, on stock les résultats intermédiaires dans un objet temporaire au lieu d'imbriquer les formules (possible mais moins pratique)
+x1 <- filter(flights, dest == "LAX") #on stock les lignes filtrées dans l'objet x1
+x2 <- select(x1, dep_delay, arr_delay) #on stock les colonnes sélectionnées parmi x1 dans l'objet x2
+arrange(x2, dep_delay) #on classe les lignes contenues dans l'objet x2 selon le retard des départs
+
+#plus simple, on utilise un pipe %>%, si j’exécute expr %>% f, alors le résultat de l’expression expr, à gauche du pipe, sera passé comme premier argument à la fonction f, à droite du pipe, ce qui revient à exécuter f(expr)
+
+flights %>% filter(dest == "LAX") %>% select(dep_delay, arr_delay) %>% arrange(dep_delay) #même opération que la précédente sans utilisation d'objets intermédiaires
+
+#écriture avec retour à la ligne possible à condition que %>% soit en fin de ligne
+flights %>% 
+filter(dest == "LAX") %>%
+select(dep_delay, arr_delay)%>%
+arrange(dep_delay)
+
+#on peut stocker le tableau résultant du pipeline dans un objet
+dep_delay_LA <- flights %>%
+  filter(dest == "LAX") %>%
+  select(dep_delay, arr_delay)%>%
+  arrange(dep_delay)
+```
+
+## Fonction GROUP BY
+```{r}
+#fonction group_by permet de créer des groupes à partir de valeurs d'une ou plusieurs colonnes en leur assignant un "ID" de groupe commun
+
+flights %>% group_by(month) %>% slice(1) #on récupère le premier vol de chaque mois, chaque mois est un groupe, 12 groupes
+
+
+#Attention : la clause group_by marche pour les verbes déjà vus précédemment, sauf pour arrange, qui par défaut trie la table sans tenir compte des groupes. Pour obtenir un tri par groupe, il faut lui ajouter l’argument .by_group = TRUE
+
+flights %>% 
+  group_by(month) %>% 
+  arrange(desc(dep_delay), .by_group = TRUE)
+```
+
+## Concaténation de tables
+```{r}
+bind_rows() #ajouts de lignes
+bind_cols() #ajouts de colonnes
+
+```
+
+
+## Tables multiples: Jointure avec clef implicite
+```{r}
+left_join(flights, airlines)%>%
+  select(month, day, carrier, name)
+#OU
+flights %>% 
+  left_join(airlines)%>%
+  select(month, day, carrier, name)
+```
+
+## Jointure avec clef explicite, ici la colonne "origin" de la table "flights" correspond à la table "faa" de la table "airports"
+```{r}
+left_join(flights %>% select(month, day, origin, dest),
+          airports %>% select(faa, alt, name),
+          by = c("origin" = "faa"))
+#OU
+flights %>% select(month, day, origin, dest)%>%
+          left_join(airports %>% select(faa, alt, name),
+          by = c("origin" = "faa"))
+
+```
+
+
+Grands remerciements à la source: https://juba.github.io/tidyverse/10-dplyr.html#tables-multiples pour l'aide et la guidance dans la génération de cet exercice d'entrainement !
