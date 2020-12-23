@@ -1,0 +1,122 @@
+---
+title: "partiel Thomas SERVANT"
+author: "Thomas SERVANT"
+date: "12/22/2020"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+<br> Dans le cadre de notre partiel, nous devons réaliser un total de 12 travaux retracant notre parcours et notre travail durant les 30 heures de cours. 
+<br>    Le travail à faire est le suivant : 
+<br>    - Une entête comportant un titre, un lien Github avec le ou les noms des auteurs.
+<br>    - Une synthese de ce travail 
+<br>    - Un extrait commenté avec des parties de codes clé avec explication et commentaire. 
+<br>    - Une évalutation du travail avec nos 5 criteres. 
+<br>    - Une conclusion du travail 
+
+## Definition des 5 critères de notations : 
+<br> 1) Présentation et lisibilité du RMD. 
+<br> 2) Knit opérationnel.
+<br> 3) Contenue facilement compréhensible.
+<br> 4) Facilité de réutilisation du code. 
+<br> 5) Explication des outils utilisés. 
+
+## Travail n°2 : "MNIST et Fashion MNIST (illustration dans R)"
+
+Travail réalisé par "Kanlanfeyi Kabirou / Hounsinou Jordy". 
+
+https://github.com/kabirou7/PSBX/blob/main/MNIST.Rmd
+
+
+## Synthese : 
+
+<br> Le RMD effectué par ces deux étudiants se base sur les technologies de Machine Learning et de Deep Learning, deux technologie qui s'imposent dans tous les secteurs d'activité de nos jours.
+
+<br> MNIST et Fashion MNIST sont des bases de données a la bases de l'apprentissage de ces technologies novatrices.
+
+<br> Ils ont par ailleurs mis en place différentes applications d'algorithmes pour montrer leur utilité.
+
+
+## Extrait commenté du code :
+
+Dans leur introduction , les auteurs ont utilisé le code ci-dessous pour illustrer leur exemple : 
+
+```{r, eval=FALSE}
+library(readr)
+library(randomForest)
+library(caret)
+library(naivebayes)
+library(class)
+#Pour fractionner les données
+library(dplyr)
+#Librairies Installée
+#caret pour la matrice de confusion
+#Lire les deux données: MNIST et fashion MNIST
+mnist <- read_csv("mnist_train.csv")
+fashion <- read_csv("fashion_mnist_train.csv")
+
+#Encodage de la colonne label 
+mnist$label = factor(mnist$label)
+fashion$label = factor(fashion$label)
+
+#Visualisation de la structure des données en affichant les premières lignes
+head(mnist[1:10,1:10])
+head(fashion[1:10,1:10])
+
+#Données scindé en deux parties
+train_mnist <-  sample_frac(mnist, 0.8)
+test_mnist <- anti_join(mnist, train_mnist)
+train_fashion <-  sample_frac(fashion, 0.8)
+test_fashion <- anti_join(fashion, train_fashion)
+
+
+#Random Forest
+rf_MNIST <- randomForest(label ~ ., data = train_mnist, ntree = 10)
+pred_MNIST1 <- predict(rf_MNIST, test_mnist)
+rf_FASH <- randomForest(label ~ ., data = train_fashion, ntree = 10)
+pred_FASH1 <- predict(rf_FASH, test_fashion)
+
+#Naive bayes
+bayes_MNIST <- randomForest(label ~ ., data = train_mnist)
+pred_MNIST2 <- predict(bayes_MNIST, test_mnist)
+bayes_FASH <- randomForest(label ~ ., data = train_fashion)
+pred_FASH2 <- predict(bayes_FASH, test_fashion)
+
+#Utilisation de la matrice de confusion pour évaluer nos modèles construit
+cm_rf1 <- confusionMatrix(pred_MNIST1, test_mnist$label)
+cm_rf2 <- confusionMatrix(pred_FASH1, test_fashion$label)
+cm_nb1 <- confusionMatrix(pred_MNIST2, test_mnist$label)
+cm_nb2 <- confusionMatrix(pred_FASH2, test_fashion$label)
+
+#Nous créons une matrice 2x2
+valeurs <- matrix(c(cm_nb1$overall["Accuracy"],cm_nb2$overall["Accuracy"],cm_rf1$overall["Accuracy"],cm_rf2$overall["Accuracy"]), ncol = 2)
+colnames(valeurs)<- c("Naive Bayes", "Random Forest")
+rownames(valeurs)<- c("MNIST", "Fashion MNIST")
+tableau <- as.table(valeurs)
+print(tableau)
+
+# Visualisation de la matrice
+cm_rf1
+```
+
+## Evaluation du travail : 
+
+Ce tutoriel a pour but d'aborder les principes du machine Learning et du Deep Learning, malheureusement le knit n'etant pas executable cela ne permet pas de voir quelles sont les résultats obtenue.
+
+<br> 1) Présentation et lisibilité du RMD : RMD structuré et facile a lire. 
+<br> 2) Knit opérationnel : RMD difficile a kniter, après avoir passé un long moment a retrouver les fichier en csv, une erreur récurrente apparait au niveau de la ligne 65 et 66.
+<br> 3) Contenue facilement compréhensible : Bonnes explication avec un bon détail de chaque étape.
+<br> 4) Facilité de réutilisation du code : Le code a l'air d'être bien détaillé, cependant ne marchant pas chez moi il semble donc très peu réutilisable.
+<br> 5) Explication des outils utilisés : Les différents chunk de code sont bien détaillé, cela aide a la compréhension d'utilisation de tel fonction ou packages.
+
+## Conclusion : 
+
+On peux donc en conclure que c'est un bon RMD, facile a lire et a comprendre grâce a leurs nombreuses explications. Cependant, le faite que leur travail soit autant tournés vers un seul exemple rend le code difficilement réutilisable.

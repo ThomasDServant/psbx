@@ -1,0 +1,91 @@
+---
+title: "Partiel Thomas SERVANT"
+author: "Thomas SERVANT"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+<br> Dans le cadre de notre partiel, nous devons réaliser un total de 12 travaux retracant notre parcours et notre travail durant les 30 heures de cours. 
+<br>    Le travail à faire est le suivant : 
+<br>    - Une entête comportant un titre, un lien Github avec le ou les noms des auteurs.
+<br>    - Une synthese de ce travail 
+<br>    - Un extrait commenté avec des parties de codes clé avec explication et commentaire. 
+<br>    - Une évalutation du travail avec nos 5 criteres. 
+<br>    - Une conclusion du travail 
+
+## Definition des 5 critères de notations : 
+<br> 1) Présentation et lisibilité du RMD. 
+<br> 2) Knit opérationnel.
+<br> 3) Contenue facilement compréhensible.
+<br> 4) Facilité de réutilisation du code. 
+<br> 5) Explication des outils utilisés. 
+
+## Travail n°1 : "La Cross Validation"
+
+Travail réalisé par "Marko ARSIC / Rindra LUTZ" le 15/11/2020. 
+
+https://github.com/ARSICMrk/ARSIC_PSBx/blob/main/R_Travail_Sup/Cross%20Validation.Rmd
+
+
+## Synthese : 
+
+<br> Les travaux effectué par ces deux etudiants se basent sur la cross-validation, étant une regression linéaire ils se sont concentré sur les méthodes prédictives. 
+
+<br> La regression logistique permet de construire un modele permettant de prédire et expliquer les valeurs prises par une variable cible qualitative.
+
+<br> La cross-validation permet aussi de determiner les paramètres d'un modèle. On met en compétitiion K qui est un "sous-modèle" pour en mesurer la performance et determiner le paramètre testé.
+
+
+## Extrait commenté du code :
+
+Dans leur introduction , les auteurs ont utilisé le code ci-dessous pour illustrer leur exemple : 
+
+```{r}
+library(tidyverse)
+library(caret)
+# Téléchargement des données
+data("swiss")
+# Inspecter les données
+sample_n(swiss, 3)
+# Définition de l'échantillon d'entraînement
+set.seed(123) 
+
+train.control <- trainControl(method = "cv", number = 10)
+# Entraîner le modèle
+model <- train(Fertility ~., data = swiss, method = "lm",
+               trControl = train.control)
+# Résultats résumés
+print(model)
+
+# Définiiton de l'échantillon d'entraînement
+set.seed(123)
+train.control <- trainControl(method = "repeatedcv", 
+                              number = 10, repeats = 3)
+# Entraîner le modèle
+model <- train(Fertility ~., data = swiss, method = "lm",
+               trControl = train.control)
+# Résultats résumés
+print(model)
+```
+
+## Evaluation du travail : 
+
+Ce tutoriel nous a permis d'apprendre comment mettre en place un code qui allait nous permettre d'effectuer une cross-validation sur une base de donnée et d'ainsi, mettre en place des modèles prédictifs.
+
+<br> 1) Présentation et lisibilité du RMD : RMD structuré et facile a lire. 
+<br> 2) Knit opérationnel : RMD facile a kniter.
+<br> 3) Contenue facilement compréhensible : Bonnes explication avec un bon détail de chaque étape.
+<br> 4) Facilité de réutilisation du code : Le code est trop centré sur un exemple en particulier, il est donc difficile a réutiliser sur d'autre projet en l'état.
+<br> 5) Explication des outils utilisés : Les différents chunk de code sont bien détaillé, cela aide a la compréhension d'utilisation de tel fonction ou packages.
+
+## Conclusion : 
+
+On peux donc en conclure que c'est un bon RMD, facile a lire et a comprendre grâce a leurs nombreuses explications. Cependant, le faite que leur travail soit autant tournés vers un seul exemple rend le code difficilement réutilisable.
+
