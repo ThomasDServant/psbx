@@ -1,0 +1,119 @@
+---
+title: "rpart"
+author: "Thomas Servant"
+date: "07/01/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+<br> Dans le cadre de notre partiel, nous devons réaliser un total de 12 travaux retracant notre parcours et notre travail durant les 30 heures de cours. 
+<br>    Le travail à faire est le suivant : 
+<br>    - Une entête comportant un titre, un lien Github avec le ou les noms des auteurs.
+<br>    - Une synthese de ce travail 
+<br>    - Un extrait commenté avec des parties de codes clé avec explication et commentaire. 
+<br>    - Une évalutation du travail avec nos 5 criteres. 
+<br>    - Une conclusion du travail 
+
+## Definition des 5 critères de notations : 
+<br> 1) Présentation et lisibilité du RMD. 
+<br> 2) Knit opérationnel.
+<br> 3) Contenue facilement compréhensible.
+<br> 4) Facilité de réutilisation du code. 
+<br> 5) Explication des outils utilisés. 
+
+## Travail n°2 : "RPART PACKAGE"
+
+Travail réalisé par "Maxime & Siva". 
+
+https://github.com/mallaker/PSB_X/blob/main/Package%20Rpart/Rpart%20package.Rmd
+
+
+## Synthese : 
+
+<br> Ce RMD porte sur le package RPART (Recursive And Regression Trees), il permet de construire des modèles de classification ou de régresssion d'une  très générale. Les modèles étudiés sont représentés sous forme d'arbres de decision.
+
+<br> La méthode d'arbre de décision est une technique d'apprentissage automatique prédictif puissant et populaire, aussi connu sous le nom de CART.
+
+<br> Dans leur Markdown, les étudiants ont procédé a l'explicatin des differents avantages et inconveniennt de cette méthode et ont ensuite donné un exemple de code.
+
+
+## Extrait commenté du code :
+
+Dans leur introduction , les auteurs ont utilisé le code ci-dessous pour illustrer leur exemple : 
+
+```{r}
+library(rpart)
+library(rpart.plot)
+        
+data(ptitanic)
+summary(ptitanic)
+lapply(ptitanic,class)
+
+attr(ptitanic$age,"class") <- NULL
+class(ptitanic$age)
+
+nb_lignes <- floor((nrow(ptitanic)*0.75)) #on selctionne le nombre de ligne pour notre echantillons d'apprentissage soit 75% du dataset initial
+ptitanic.apprt <- ptitanic[1:nb_lignes, ]#echantillon d'apprentissage
+ptitanic.test <- ptitanic[(nb_lignes+1):nrow(ptitanic), ]#echantillon de test
+
+#construction de l'arbre
+ptitanic.Arbre <- rpart(survived~.,data= ptitanic.apprt,control=rpart.control(minsplit=5,cp=0))
+#affichage de l'arbre
+plot(ptitanic.Arbre, uniform=TRUE, branch=0.5, margin=0.1)
+text(ptitanic.Arbre,all=FALSE, use.n=TRUE)
+
+plotcp(ptitanic.Arbre)
+
+print(ptitanic.Arbre$cptable[which.min(ptitanic.Arbre$cptable[,4]),1])
+
+ptitanic.Arbre_Opt <- prune(ptitanic.Arbre,cp=ptitanic.Arbre$cptable[which.min(ptitanic.Arbre$cptable[,4]),1])
+
+prp(ptitanic.Arbre_Opt,extra = 1)
+
+```
+
+Test et validation
+
+```{r}
+#prediction du modele sur les données de test
+ptitanic.test_predict <- predict(ptitanic.Arbre_Opt,newdata =ptitanic.test,type = "class")
+#affichons juste la prediction faite sur les 10 premiers elements
+print(ptitanic.test_predict[1:10])
+#Matrice de confusion
+MC <- table(ptitanic.test$survived,ptitanic.test_predict)
+print(MC)
+
+#Erreur de classement
+erreur <- 1.0-(MC[1,1]+MC[2,2]/sum(MC))
+print(erreur)
+#Taux de prediction
+prediction <- MC[2,2]/sum(MC[2,])
+prediction
+
+print(ptitanic.Arbre_Opt)
+```
+
+
+
+## Evaluation du travail : 
+
+Ce tutoriel a pour but d'aborder les principes du package rpart et de la méthode d'arbre de décision, les explications sont clair et le code est très facilement réutilisables. Il m'a été très facile de le knit sur ma machine.
+
+<br> 1) Présentation et lisibilité du RMD : RMD bien structuré et détaillé. 
+<br> 2) Knit opérationnel : RMD très facile a kniter. 
+<br> 3) Contenue facilement compréhensible : Bonnes explication avec un bon détail de chaque étape.
+<br> 4) Facilité de réutilisation du code : Code très bien détaillé a chaque étape et semble très facile a réutiliser.
+<br> 5) Explication des outils utilisés : Chaque chunk est très bien detaillé avec plein de commentaires pour expliquer étape par étape les différents outils utilisés.
+
+## Conclusion : 
+
+On peux en conclure que c'est un très bon RMD. très bien expliqué, concis, organisé et très simple a réutiliser.
+
